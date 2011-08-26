@@ -78,7 +78,11 @@ module Rack
     end
 
     def create_response_headers http_response
-      response_headers = Rack::Utils::HeaderHash.new(http_response.to_hash)
+      response_headers = http_response.to_hash
+      response_headers.each do |name, value|
+        response_headers[name] = value.join("\n")
+      end
+      response_headers = Rack::Utils::HeaderHash.new(response_headers)
       # handled by Rack
       response_headers.delete('status')
       # TODO: figure out how to handle chunked responses
