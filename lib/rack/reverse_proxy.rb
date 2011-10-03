@@ -12,11 +12,12 @@ module Rack
 
     def call(env)
       rackreq = Rack::Request.new(env)
-      fullpath = if env['REQUEST_URI']
+      if env['REQUEST_URI']
         u = URI.parse(env['REQUEST_URI'])
-        u.request_uri
+        fullpath = u.path
+        fullpath << "?#{u.query}" if u.query
       else
-        rackreq.fullpath
+        fullpath = rackreq.fullpath
       end
       
       matcher = get_matcher fullpath
