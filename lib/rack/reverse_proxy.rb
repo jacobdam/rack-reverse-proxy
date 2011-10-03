@@ -12,10 +12,17 @@ module Rack
 
     def call(env)
       rackreq = Rack::Request.new(env)
-      matcher = get_matcher rackreq.fullpath
+      fullpath = if env['REQUEST_URI']
+        u = URI.parse(env['REQUEST_URI'])
+        u.request_uri
+      else
+        rackreq.fullpath
+      end
+      
+      matcher = get_matcher fullpath
       return @app.call(env) if matcher.nil?
 
-      uri = matcher.get_uri(rackreq.fullpath,env)
+      uri = matcher.get_uri(fullpath,env)
       all_opts = @global_options.dup.merge(matcher.options)
       headers = Rack::Utils::HeaderHash.new
       env.each { |key, value|
